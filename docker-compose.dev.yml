@@ -1,0 +1,15 @@
+services:
+  postgres:
+    image: postgres:alpine
+    container_name: postgres_greenlight_dev
+    env_file:
+      - ./postgres/.env
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./postgres/init_db:/docker-entrypoint-initdb.d
+      - ./pgdata:/var/lib/postgresql/data
+
+networks:
+  default:
+    name: greenlight_network

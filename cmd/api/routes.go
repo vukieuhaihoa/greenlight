@@ -23,5 +23,5 @@ func (app *application) routes() http.Handler {
 		panic("oops! something went wrong")
 	})
 
-	return app.recoverPanic(router)
+	return app.recoverPanic(app.rateLimit(router))
 }

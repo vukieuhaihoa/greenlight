@@ -34,10 +34,19 @@ func (app *application) serve() error {
 		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 		defer cancel()
 
-		shutdownErr <- srv.Shutdown(ctx)
+		err := srv.Shutdown(ctx)
+		if err != nil {
+			shutdownErr <- err
+		}
+
+		app.logger.Info("completing background tasks", "addr", srv.Addr)
+
+		app.wg.Wait()
+
+		shutdownErr <- nil
 	}()
 
-	app.logger.Info("starting server", "version", version, "port", app.config.port, "env", app.config.env)
+	app.logger.Info("starting server", "version", version, "addr", srv.Addr, "env", app.config.env)
 
 	err := srv.ListenAndServe()
 	if !errors.Is(err, http.ErrServerClosed) {
@@ -49,7 +58,7 @@ func (app *application) serve() error {
 		return err
 	}
 
-	app.logger.Info("stopped server", "port", app.config.port)
+	app.logger.Info("stopped server", "addr", srv.Addr)
 
 	return nil
 }

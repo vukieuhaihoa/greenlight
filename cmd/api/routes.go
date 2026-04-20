@@ -21,6 +21,7 @@ func (app *application) routes() http.Handler {
 	router.HandlerFunc(http.MethodGet, "/v1/movies", app.listMoviesHandler)
 
 	router.HandlerFunc(http.MethodPost, "/v1/users", app.registerUserHandler)
+	router.HandlerFunc(http.MethodPut, "/v1/users/activated", app.activateUserHandler)
 
 	// router.HandlerFunc(http.MethodGet, "/v1/panic", func(w http.ResponseWriter, r *http.Request) {
 	// 	panic("oops! something went wrong")

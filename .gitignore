@@ -30,3 +30,7 @@ go.work.sum
 
 
 pgdata/
+
+.envrc
+
+bin/

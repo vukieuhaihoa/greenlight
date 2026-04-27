@@ -34,3 +34,5 @@ pgdata/
 .envrc
 
 bin/
+
+remote/

@@ -1,0 +1,7 @@
+export GREENLIGHT_DB_DSN=postgres://greenlight:your_password@localhost/greenlight?sslmode=disable
+export GREENLIGHT_SMTP_HOST=sandbox.smtp.mailtrap.io
+export GREENLIGHT_SMTP_PORT=25
+export GREENLIGHT_SMTP_USERNAME=xxxxxxxxxxxxxx
+export GREENLIGHT_SMTP_PASSWORD=xxxxxxxxxxxxxx
+export GREENLIGHT_SMTP_SENDER=Greenlight <no-reply@greenlight.vukieuhaihoa.net>
+export PRODUCTION_HOST_IP=xxx.xxx.xxx.xxx

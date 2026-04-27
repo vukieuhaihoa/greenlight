@@ -26,7 +26,12 @@ confirm:
 ## run/api: run the cmd/api application
 .PHONY: run/api
 run/api:
-	go run ./cmd/api -db-dsn="$${GREENLIGHT_DB_DSN}"
+	go run ./cmd/api -db-dsn="$${GREENLIGHT_DB_DSN}" \
+		-smtp-host="$${GREENLIGHT_SMTP_HOST}" \
+		-smtp-port=$(GREENLIGHT_SMTP_PORT) \
+		-smtp-username="$${GREENLIGHT_SMTP_USERNAME}" \
+		-smtp-password="$${GREENLIGHT_SMTP_PASSWORD}" \
+		-smtp-sender="$${GREENLIGHT_SMTP_SENDER}"
 
 ## db/psql: connect to the database using psql
 .PHONY: db/psql
@@ -96,3 +101,29 @@ build/api:
 	@echo 'Building cmd/api...'
 	go build -ldflags='-s' -o=./bin/api ./cmd/api
 	GOOS=linux GOARCH=amd64 go build -ldflags='-s' -o=./bin/linux/amd64/api ./cmd/api
+
+
+# ==================================================================================== #
+# PRODUCTION
+# ==================================================================================== #
+
+## production/connect: connect to the production server
+.PHONY: production/connect
+production/connect: confirm
+	ssh greenlight@${PRODUCTION_HOST_IP}
+
+## production/deploy/api: deploy the api to production
+.PHONY: production/deploy/api
+production/deploy/api:
+	rsync -P ./bin/linux/amd64/api greenlight@${PRODUCTION_HOST_IP}:~
+	rsync -rP --delete ./migrations greenlight@${PRODUCTION_HOST_IP}:~
+	rsync -P ./remote/production/api.service greenlight@${PRODUCTION_HOST_IP}:~
+	rsync -P ./remote/production/Caddyfile greenlight@${PRODUCTION_HOST_IP}:~
+	ssh -t greenlight@${PRODUCTION_HOST_IP} '\
+		migrate -path ~/migrations -database $$GREENLIGHT_DB_DSN up \
+		&& sudo mv ~/api.service /etc/systemd/system/ \
+		&& sudo systemctl enable api \
+		&& sudo systemctl restart api \
+		&& sudo mv ~/Caddyfile /etc/caddy/ \
+		&& sudo systemctl reload caddy \
+	'
